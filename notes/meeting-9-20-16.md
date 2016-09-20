@@ -30,6 +30,7 @@ Or this paper:
 http://www.cv-foundation.org/openaccess/content_iccv_2015/papers/Noh_Learning_Deconvolution_Network_ICCV_2015_paper.pdf
 
 ## What we will do this week:
+
 [ ] Look through the deconvolutional paper (higher priority)
 [ ] Read the Theano code John sent us (higher priority)
 [ ] Vis simple
