@@ -31,10 +31,10 @@ http://www.cv-foundation.org/openaccess/content_iccv_2015/papers/Noh_Learning_De
 
 ## What we will do this week:
 
-[ ] Look through the deconvolutional paper (higher priority)
-[ ] Read the Theano code John sent us (higher priority)
-[ ] Vis simple
-[ ] Demo
-[ ] Look through online courses
-[ ] Finish Keras/Theano tutorials (Miya & Ezra)
-[ ] Write some of the background paper
+* Look through the deconvolutional paper (higher priority)
+* Read the Theano code John sent us (higher priority)
+* Vis simple
+* Demo
+* Look through online courses
+* Finish Keras/Theano tutorials (Miya & Ezra)
+* Write some of the background paper
