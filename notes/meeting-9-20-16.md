@@ -29,6 +29,9 @@ http://www.matthewzeiler.com/pubs/cvpr2010/cvpr2010.pdf
 Or this paper:
 http://www.cv-foundation.org/openaccess/content_iccv_2015/papers/Noh_Learning_Deconvolution_Network_ICCV_2015_paper.pdf
 
+(Added later: http://arxiv.org/pdf/1609.07009v1.pdf)
+
+
 ## What we will do this week:
 
 * Look through the deconvolutional paper (higher priority)
