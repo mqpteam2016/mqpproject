@@ -12,23 +12,23 @@
 * We also discussed different methods of visualizing (deep dream, Gramm matrix, etc...)
 
 ## What we plan on doing soon
-[ ] Find code & make them work for toy data for different visualizations
-    Ideally, we'll be able to use the same (famous) model (possibly AlexNet, Google...)
-    Pick a platform for these models (Caffe, Theano, TensorFlow...)
-    [ ] Patch that causes max activation *start with this*
-    [ ] Deconvolution
-    [ ] Occlusion (in slides)
-    [ ] Deep dream
-    [ ] Embedding?
-    [ ] Other methods
+
+* Find code & make them work for toy data for different visualizations <br/> Ideally, we'll be able to use the same (famous) model (possibly AlexNet, Google...)<br/>Pick a platform for these models (Caffe, Theano, TensorFlow...)
+    - [ ] Patch that causes max activation *start with this*
+    - [ ] Deconvolution
+    - [ ] Occlusion (in slides)
+    - [ ] Deep dream
+    - [ ] Embedding?
+    - [ ] Other methods
 
     For each of these:
-    [ ] Code
-    [ ] Model (let's try GoogleNet 4.0)
-    [ ] Data
-[ ] Spend a bit of time as a group going over done research
+    - [ ] Code
+    - [ ] Model (let's try GoogleNet 4.0)
+    - [ ] Data
+- [ ] Spend a bit of time as a group going over done research
 
 ## By next week
-[ ] Get one model (e.g. GoogleNet)
-[ ] Get some test data
-[ ] Figure out max patch activation
+
+- [ ] Get one model (e.g. GoogleNet)
+- [ ] Get some test data
+- [ ] Figure out max patch activation
