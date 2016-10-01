@@ -84,7 +84,7 @@ model.add(MaxPooling2D(pool_size=(2, 2), name='maxpool_1'))
 model.add(Convolution2D(16, 5, 5, border_mode='same', name='conv2d_2'))
 model.add(Activation('relu'))
 model.add(MaxPooling2D(pool_size=(2, 2), name='maxpool_2'))
-model.add(Convolution2D(120, 5, 5), name='conv2d_3')
+model.add(Convolution2D(120, 5, 5, name='conv2d_3'))
 model.add(Activation('relu'))
 model.add(Dropout(0.25, name='dropout_1'))
 
