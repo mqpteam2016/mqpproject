@@ -9,22 +9,22 @@ np.random.seed(123)
 
 from keras import backend as K
 from keras.datasets import mnist
-from keras.models import Sequential
+from keras.models import Sequential, load_model
 from keras.layers.core import Dense, Dropout, Activation, Flatten
-from keras.layers.convolutional import Convolution2D, MaxPooling2D
+from keras.layers.convolutional import Convolution2D, Convolution1D, MaxPooling2D
 from keras.utils import np_utils
 from keras.backend.common import _FLOATX
+import pprint
+import inspect
 K.set_image_dim_ordering('th')
 
-def bpzero(index):
-    return lambda shape,name: K.variable(np.array([ [ [[1]] if i == index else [[0]] for i in list(range(shape[1]))] for j in list(range(shape[0]))]), _FLOATX, name)
 
 class BpZeroLayer(Convolution2D):
     '''
     Make a 2d convolution that blacks out all but one filter
     '''
     def __init__(self, filter_index, input_filters):
-        super(BpZeroLayer, self).__init__(input_filters, 1, 1, trainable=False, init=bpzero(filter_index))
+        super(BpZeroLayer, self).__init__(16, 1,  1, trainable=False, border_mode='same', weights=[np.array([ [ [[1]] if i == filter_index else [[0]] for i in range(0,input_filters) ] for j in range(0, input_filters)]), np.zeros(input_filters)])
 
 class BpOneLayer(Convolution2D):
     '''
@@ -32,17 +32,38 @@ class BpOneLayer(Convolution2D):
     '''
     def __init__(self, input_filters):
         super(BpOneLayer, self).__init__(input_filters, 1, 1, trainable=False, init='one')
+ex_model = load_model('example_model.h5')
+print("before:")
+# there are 16 filters
+print(len(ex_model.layers[3].get_weights()[0]))
+# that take the output of 6 filters as input
+print(len(ex_model.layers[3].get_weights()[0][0]))
+# and use 5x5 kernels
+print(len(ex_model.layers[3].get_weights()[0][0][0]))
+print(len(ex_model.layers[3].get_weights()[0][0][0][0]))
+print("after:")
+# there are 16 filters
+print(len(ex_model.layers[6].get_weights()[0]))
+# that take the output of 6 filters as input
+print(len(ex_model.layers[6].get_weights()[0][0]))
+# and use 5x5 kernels
+print(len(ex_model.layers[6].get_weights()[0][0][0]))
+print(len(ex_model.layers[6].get_weights()[0][0][0][0]))
 
-## Load dataset
-'''
-    Here we train a modernized version of the LeNet5 [1] on the MNIST dataset.
-    This code was modified from github.com/fchollet/keras/examples visit that site for more examples.
+model = Sequential()
+inp = 4
+for i in range(0,inp):
+    model.add(ex_model.layers[i])
+model.add(BpZeroLayer(0, 16))
+print("in the middle:")
+print(len(model.layers[inp].get_weights()[0]))
+print(len(model.layers[inp].get_weights()[0][0]))
+print(len(model.layers[inp].get_weights()[0][0][0]))
+print(len(model.layers[inp].get_weights()[0][0][0][0]))
+for i in range(inp,  len(ex_model.layers)):
+    model.add(ex_model.layers[i])
 
-    [1] LeCun, Y., Bottou, L., Bengio, Y., and Haffner, P. (1998d).
-        Gradient-based learning applied to document recognition.
-        Proceedings of the IEEE, 86(11), 2278–2324.
-'''
-
+del ex_model
 batch_size = 128
 nb_classes = 10  # 10 digits from 0 to 9
 
@@ -69,79 +90,17 @@ print(X_test.shape[0], 'test samples')
 Y_train = np_utils.to_categorical(y_train, nb_classes)
 Y_test = np_utils.to_categorical(y_test, nb_classes)
 
-
-
-
-## Draw some of the training set to give you an idea
-for i in range(9):
-    plt.subplot(3, 3, i+1)
-    plt.imshow(X_train[i, 0], cmap='gray')
-    plt.axis("off")
-
-
-## Model definition
-""" ref: http://eblearn.sourceforge.net/beginner_tutorial2_train.html
-
-The input images are 32×32 in size with 1 channel(i.e grayscale image, not color)
-From figure 1, we can say that there are 6-layers in our convnet.
-Layer C1 is a convolution layer with 6 feature maps and a 5×5 kernel for each feature map.
-Layer S1 is a subsampling layer with 6 feature maps and a 2×2 kernel for each feature map.
-Layer C3 is a convolution layer with 16 feature maps and a 6×6 kernel for each feature map.
-Layer S4 is a subsampling layer with 16 feature maps and a 2×2 kernel for each feature map.
-Layer C5 is a convolution layer with 120 feature maps and a 6×6 kernel for each feature map.
-Layer C6 is a fully connected layer with 84 neurons
-Layer OUTPUT returns the final label
-"""
-model = Sequential()
-
-# Convolution2D(number_filters, row_size, column_size, input_shape=(number_channels, img_row, img_col))
-
-model.add(Convolution2D(6, 5, 5, input_shape=(1, img_rows, img_cols), border_mode='same', name='conv2d_1'))
-model.add(Activation('relu'))
-model.add(MaxPooling2D(pool_size=(2, 2), name='maxpool_1'))
-model.add(Convolution2D(16, 5, 5, border_mode='same', name='conv2d_2'))
-model.add(BpOneLayer(input_filters=16))
-model.add(Activation('relu'))
-model.add(MaxPooling2D(pool_size=(2, 2), name='maxpool_2'))
-model.add(Convolution2D(120, 5, 5, name='conv2d_3'))
-model.add(Activation('relu'))
-model.add(Dropout(0.25, name='dropout_2'))
-
-model.add(Flatten())
-model.add(Dense(84))
-model.add(Activation('relu'))
-model.add(Dropout(0.5))
-model.add(Dense(10))
-model.add(Activation('softmax'))
-
-
-## Train
-# Incidently, this bit will give a warning that show_accuracy is deprecated
-
-model.compile(loss='categorical_crossentropy', optimizer='adadelta')
-nb_epoch = 2  # try increasing this number
-model.fit(X_train, Y_train, batch_size=batch_size, nb_epoch=nb_epoch,
-          show_accuracy=True, verbose=1, validation_data=(X_test, Y_test))
-score = model.evaluate(X_test, Y_test, show_accuracy=True, verbose=0)
-print('Test score:', score[0])
-print('Test accuracy:', score[1])
-
-
-## Visualize sample results
-
-res = model.predict_classes(X_test[:9])
-plt.figure(figsize=(10, 10))
-
-for i in range(9):
-    plt.subplot(3, 3, i+1)
-    plt.imshow(X_test[i, 0], cmap='gray')
-    plt.gca().get_xaxis().set_ticks([])
-    plt.gca().get_yaxis().set_ticks([])
-    plt.ylabel("prediction = %d" % res[i], fontsize=18)
-    
 # for every filter
+X_max = []
 for i in list(range(16)):
-    model.layers[4] = BpZeroLayer(16, i)
+    print("We're on filter:", i)
+    model.layers[inp] = BpZeroLayer(i, 16)
     # for every piece of data
-    #for j in list(range(X_train)):
-        
+    max_discrepancy = 0.0
+    X_max.append(0)
+    for j in list(range(X_train.shape[0])):
+        disc = np.dot(model.predict_on_batch(np.array([X_train[j]])), Y_train[j])
+        if max_discrepancy > disc:
+            max_discrepancy = disc
+            X_max[i] = j
+print(X_max)
