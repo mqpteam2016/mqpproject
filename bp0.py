@@ -78,14 +78,14 @@ for k in list(range(16)):
         model.add(ex_model.layers[i])
     #model.layers[inp].set_weights(BpZeroLayer(i, 16).get_weights())
     # for every piece of data
-    min_discrepancy = float("inf")
-    X_max.append(0)
+    min_discrepancy = [float("inf") for i in range(0,9)]
+    X_max.append([0 for i in range(0,9)])
     for j in list(range(400)):#X_train.shape[0])):
         print(j)
         disc = np.dot(model.predict_on_batch(np.array([X_train[j]])), Y_train[j])
         print(disc[0])
-        if min_discrepancy > disc[0]:
-            min_discrepancy = disc[0]
-            X_max[k] = j
+        if max(min_discrepancy) > disc[0]:
+            min_discrepancy[np.argmax(min_discrepancy)] = disc[0]
+            X_max[k][np.argmax(min_discrepancy)] = j
     del model
 print(X_max)
