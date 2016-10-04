@@ -120,3 +120,4 @@ for i in range(9):
     plt.gca().get_yaxis().set_ticks([])
     plt.ylabel("prediction = %d" % res[i], fontsize=18)
 
+model.save('example_model.h5')
