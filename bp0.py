@@ -33,37 +33,7 @@ class BpOneLayer(Convolution2D):
     def __init__(self, input_filters):
         super(BpOneLayer, self).__init__(input_filters, 1, 1, trainable=False, init='one')
 ex_model = load_model('example_model.h5')
-print("before:")
-# there are 16 filters
-print(len(ex_model.layers[3].get_weights()[0]))
-# that take the output of 6 filters as input
-print(len(ex_model.layers[3].get_weights()[0][0]))
-# and use 5x5 kernels
-print(len(ex_model.layers[3].get_weights()[0][0][0]))
-print(len(ex_model.layers[3].get_weights()[0][0][0][0]))
-print("after:")
-# there are 16 filters
-print(len(ex_model.layers[6].get_weights()[0]))
-# that take the output of 6 filters as input
-print(len(ex_model.layers[6].get_weights()[0][0]))
-# and use 5x5 kernels
-print(len(ex_model.layers[6].get_weights()[0][0][0]))
-print(len(ex_model.layers[6].get_weights()[0][0][0][0]))
 
-model = Sequential()
-inp = 4
-for i in range(0,inp):
-    model.add(ex_model.layers[i])
-model.add(BpZeroLayer(0, 16))
-print("in the middle:")
-print(len(model.layers[inp].get_weights()[0]))
-print(len(model.layers[inp].get_weights()[0][0]))
-print(len(model.layers[inp].get_weights()[0][0][0]))
-print(len(model.layers[inp].get_weights()[0][0][0][0]))
-for i in range(inp,  len(ex_model.layers)):
-    model.add(ex_model.layers[i])
-
-del ex_model
 batch_size = 128
 nb_classes = 10  # 10 digits from 0 to 9
 
@@ -92,15 +62,30 @@ Y_test = np_utils.to_categorical(y_test, nb_classes)
 
 # for every filter
 X_max = []
-for i in list(range(16)):
-    print("We're on filter:", i)
-    model.layers[inp] = BpZeroLayer(i, 16)
+for k in list(range(16)):
+    print("We're on filter:", k)
+    model = Sequential()
+    inp = 4
+    for i in range(0,inp):
+        model.add(ex_model.layers[i])
+    model.add(BpZeroLayer(k, 16))
+    print("in the middle:")
+    print(len(model.layers[inp].get_weights()[0]))
+    print(len(model.layers[inp].get_weights()[0][0]))
+    print(len(model.layers[inp].get_weights()[0][0][0]))
+    print(len(model.layers[inp].get_weights()[0][0][0][0]))
+    for i in range(inp,  len(ex_model.layers)):
+        model.add(ex_model.layers[i])
+    #model.layers[inp].set_weights(BpZeroLayer(i, 16).get_weights())
     # for every piece of data
-    max_discrepancy = 0.0
+    min_discrepancy = float("inf")
     X_max.append(0)
-    for j in list(range(X_train.shape[0])):
+    for j in list(range(400)):#X_train.shape[0])):
+        print(j)
         disc = np.dot(model.predict_on_batch(np.array([X_train[j]])), Y_train[j])
-        if max_discrepancy > disc:
-            max_discrepancy = disc
-            X_max[i] = j
+        print(disc[0])
+        if min_discrepancy > disc[0]:
+            min_discrepancy = disc[0]
+            X_max[k] = j
+    del model
 print(X_max)
