@@ -1,1 +1,5 @@
+Gists for keras implementation of common networks:
+https://gist.github.com/joelouismarino/a2ede9ab3928f999575423b9887abd14
+https://gist.github.com/baraldilorenzo/07d7802847aaad0a35d3
+
 https://github.com/rbgirshick/rcnn
