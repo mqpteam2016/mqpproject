@@ -10,7 +10,7 @@ np.random.seed(123)
 from keras import backend as K
 from keras.datasets import mnist
 from keras.models import Sequential, load_model
-from keras.layers.core import Dense, Dropout, Activation, Flatten, fork
+from keras.layers.core import Dense, Dropout, Activation, Flatten, Layer
 from keras.layers.convolutional import Convolution2D, Convolution1D, MaxPooling2D, Deconvolution2D
 from keras.utils import np_utils
 from keras.backend.common import _FLOATX
@@ -79,22 +79,22 @@ X_max = []
 for k in list(range(16)):
     print("We're on filter:", k)
     model = Sequential()
+    models = []
     inp = 4
     for i in range(0, len(ex_model.layers)):
         l = ex_model.layers[i]
-        model.add(l)
-        if isInstance(l, Convolution2D):
-            model2.add(Deconvolution2D(l.nb_filter, l.nb_row, l.nb_col, input_shape=(l.output_shape), 
-        else if isInstance(l, Pooling2D):
-            model2.add(Unpooling2D(l.pool_size))
-    min_discrepancy = [float("inf") for i in range(0,9)]
-    X_max.append([0 for i in range(0,9)])
-    for j in list(range(400)):#X_train.shape[0])):
-        print(j)
-        disc = np.dot(model.predict_on_batch(np.array([X_train[j]])), Y_train[j])
-        print(disc[0])
-        if max(min_discrepancy) > disc[0]:
-            min_discrepancy[np.argmax(min_discrepancy)] = disc[0]
-            X_max[k][np.argmax(min_discrepancy)] = j
-    del model
-print(X_max)
+        model2 = Sequential()
+        if isinstance(l, Activation):
+            j = i - 1
+            l2 = ex_model.layers[j]
+            while not isinstance(l2, Activation):
+                if isinstance(l2, Convolution2D):
+                    print(Deconvolution2D(nb_filter=l2.nb_filter, nb_row=l2.nb_row, nb_col=l2.nb_col, output_shape=(l2.input_shape), input_shape=(l2.output_shape)).output)
+                    model2.add(Deconvolution2D(nb_filter=l2.nb_filter, nb_row=l2.nb_row, nb_col=l2.nb_col, output_shape=(l2.input_shape), input_shape=(l2.output_shape)))
+                elif isinstance(l2, Pooling2D):
+                    model2.add(Unpooling2D(l2.pool_size))
+                j = j - 1
+                l2 = ex_model.layers[l2]
+            models.append(model2)
+            del model2
+            
