@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 np.random.seed(123)
 
+from theano import tensor as T
 from keras import backend as K
 from keras.datasets import mnist
 from keras.models import Sequential, load_model
@@ -30,7 +31,7 @@ class BpZeroLayer(Convolution2D):
 class Unpooling2D(Layer):
     def __init__(self, poolsize=(2, 2), ignore_border=True):
         super(Unpooling2D,self).__init__()
-        self.input = T.tensor4()
+        #self.input = T.tensor4()
         self.poolsize = poolsize
         self.ignore_border = ignore_border
 
@@ -74,27 +75,26 @@ print(X_test.shape[0], 'test samples')
 Y_train = np_utils.to_categorical(y_train, nb_classes)
 Y_test = np_utils.to_categorical(y_test, nb_classes)
 
-# for every filter
-X_max = []
-for k in list(range(16)):
-    print("We're on filter:", k)
-    model = Sequential()
-    models = []
-    inp = 4
-    for i in range(0, len(ex_model.layers)):
-        l = ex_model.layers[i]
-        model2 = Sequential()
-        if isinstance(l, Activation):
-            j = i - 1
+models = []
+
+for i in range(0, len(ex_model.layers)):
+    l = ex_model.layers[i]
+    model2 = Sequential()
+    if isinstance(l, Activation):
+        j = i - 1
+        l2 = ex_model.layers[j]
+        while not isinstance(l2, Activation):
+            if isinstance(l2, Convolution2D):
+                print([l2.nb_filter, l2.nb_row, l2.nb_col, l2.input_shape, l2.output_shape[-3:]])
+                model2.add(Deconvolution2D(nb_filter=l2.nb_filter,
+                                           nb_row=l2.nb_row,
+                                           nb_col=l2.nb_col,
+                                           output_shape=(l2.input_shape[-3:]),
+                                           input_shape=(l2.output_shape[-3:])))
+            elif isinstance(l2, MaxPooling2D):
+                model2.add(Unpooling2D(l2.pool_size))
+            j = j - 1
             l2 = ex_model.layers[j]
-            while not isinstance(l2, Activation):
-                if isinstance(l2, Convolution2D):
-                    print(Deconvolution2D(nb_filter=l2.nb_filter, nb_row=l2.nb_row, nb_col=l2.nb_col, output_shape=(l2.input_shape), input_shape=(l2.output_shape)).output)
-                    model2.add(Deconvolution2D(nb_filter=l2.nb_filter, nb_row=l2.nb_row, nb_col=l2.nb_col, output_shape=(l2.input_shape), input_shape=(l2.output_shape)))
-                elif isinstance(l2, Pooling2D):
-                    model2.add(Unpooling2D(l2.pool_size))
-                j = j - 1
-                l2 = ex_model.layers[l2]
-            models.append(model2)
-            del model2
+        models.append(model2)
+        del model2
             
