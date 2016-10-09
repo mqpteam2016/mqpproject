@@ -60,12 +60,7 @@ for index in range(0, len(ex_model.layers)):
     print(l.__class__)
     
     if isinstance(l, Activation):
-        #print(l.__class__)
         newlist.append(index)
-
-rtn = []
-
-newlist = [0, 1, 4, 7, 10, 13] # 10 and 13 doesn't work - the dropout layer is icky - it has another input, that isn't set
 
 for index in range(0, len(training_data[:400])):
     element = [[training_data[index]]]
@@ -75,19 +70,5 @@ for index in range(0, len(training_data[:400])):
         output = f([element[0], 0])
         element = output
         
-    print('len(output):', len(output), 'output[0].shape', output[0].shape)
     with open('activation_data.pickle', 'wb') as handle:
       pickle.dump(output, handle)
-    
-    #outputs = [f([[inputs]])[0] for inputs in training_data]
-
-
-# In[3]:
-
-newlist
-
-
-# In[ ]:
-
-
-

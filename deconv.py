@@ -18,14 +18,7 @@ from keras.backend.common import _FLOATX
 import pprint
 import inspect
 K.set_image_dim_ordering('th')
-
-
-class BpZeroLayer(Convolution2D):
-    '''
-    Make a 2d convolution that blacks out all but one filter
-    '''
-    def __init__(self, filter_index, input_filters):
-        super(BpZeroLayer, self).__init__(16, 1,  1, trainable=False, border_mode='same', weights=[np.array([ [ [[1]] if i == filter_index else [[0]] for i in range(0,input_filters) ] for j in range(0, input_filters)]), np.zeros(input_filters)])
+from bp0 import *
 
 
 class Unpooling2D(Layer):
@@ -46,35 +39,8 @@ class Unpooling2D(Layer):
         return {"name":self.__class__.__name__,
             "poolsize":self.poolsize,
             "ignore_border":self.ignore_border}
-    
-ex_model = load_model('example_model.h5')
 
-batch_size = 128
-nb_classes = 10  # 10 digits from 0 to 9
-
-# input image dimensions
-img_rows, img_cols = 28, 28
-# number of convolutional filters to use
-nb_filters = 32
-
-# the data, shuffled and split between tran and test sets
-(X_train, y_train), (X_test, y_test) = mnist.load_data()
-
-# Reshape data
-X_train = X_train.reshape(X_train.shape[0], 1, img_rows, img_cols)
-X_test = X_test.reshape(X_test.shape[0], 1, img_rows, img_cols)
-X_train = X_train.astype("float32")
-X_test = X_test.astype("float32")
-X_train /= 255
-X_test /= 255
-print('X_train shape:', X_train.shape)
-print(X_train.shape[0], 'train samples')
-print(X_test.shape[0], 'test samples')
-
-# convert class vectors to binary class matrices
-Y_train = np_utils.to_categorical(y_train, nb_classes)
-Y_test = np_utils.to_categorical(y_test, nb_classes)
-
+ex_model, X_train, Y_train = mnist_setup('example_model.h5')[:3]
 models = []
 
 for i in range(0, len(ex_model.layers)):
@@ -98,3 +64,6 @@ for i in range(0, len(ex_model.layers)):
         models.append(model2)
         del model2
             
+# from here what we want to do is read from the pickle that we make using activation_data
+# and run train our deconvolution models in models
+# using an l2 loss function
