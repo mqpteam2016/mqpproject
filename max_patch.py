@@ -1,4 +1,5 @@
 ## Multipurpose max patch functions
+
 import numpy as np
 from keras import backend as K
 import keras
@@ -24,6 +25,10 @@ def max_patch(model, data, images=None, layer=None, layer_number=-1, filter_numb
     if not isinstance(layer, (keras.layers.Convolution2D, keras.layers.convolutional.ZeroPadding2D)):
         print('Hey! Your layer is of class {:}. Are you sure you want to get a 2D max patch of it?'.format(layer.__class__))
     
+    if (images[0].shape[-1] > layer.output_shape[-1] * patch_size[-1] or
+        images[0].shape[-2] > layer.output_shape[-2] * patch_size[-2]):
+        print('Hey! Your patch size is small for this layer\'s output relative to the original image. You might want to increase it.')
+
     # Has shape (1), where each element is the layer's output.
     # A typical layer's output is (1, filters, width, height)
     get_layer_output = K.function([model.layers[0].input, K.learning_phase()],
@@ -53,18 +58,14 @@ def max_patch(model, data, images=None, layer=None, layer_number=-1, filter_numb
     #    fractions = [loc/total for loc, total in zip(max_locations[index], outputs[index].shape)]
     #    fractional_centers.append(tuple(fractions))    
     
-    
-    
     # Works only for 2D images
     def patch_from_location(image, max_location, patch_size):
         x = int(max_location[1]/outputs[0].shape[-1]*image.shape[1])
         y = int(max_location[0]/outputs[0].shape[-2]*image.shape[0])
-        top = y-patch_size[0]//2
-        left = x-patch_size[1]//2
-        print(max_location, top, left)
-        print(max_location,'*', image.shape, '/', outputs[0].shape)
-        return image[top:top+patch_size[0],
-                     left:left+patch_size[1]]
+        top = np.clip(y-patch_size[0]//2,    0, image.shape[0])
+        left = np.clip(x-patch_size[1]//2,   0, image.shape[1])
+        return image[top:np.clip(top+patch_size[0], 0, image.shape[0]),
+                     left:np.clip(left+patch_size[1], 0, image.shape[1])]
     
     patches = [patch_from_location(images[image_indices[index]], max_locations[index], patch_size)
             for index in range(len(image_indices))]
