@@ -19,5 +19,9 @@ model, X_train = mnist_setup('example_model.h5')[:2]
 
 l = 10
 filt = 2
-K.function([model.layers[0].input, 0], [model.layers[l].output])
-vis_layer = BpZeroLayer(
+function_layer = K.function([model.layers[0].input, 0], [model.layers[l].output])
+
+vis_layer = BpZeroLayer(filt, model.layer.get_output_at(0))
+
+K.function([vis_layer.input, 0], [vis_layer.output])
+grads = K.gradients(loss, input_img)[0]
