@@ -17,6 +17,7 @@ from keras.utils import np_utils
 from keras.backend.common import _FLOATX
 import pprint
 import inspect
+import pickle
 K.set_image_dim_ordering('th')
 from bp0 import *
 
@@ -67,3 +68,16 @@ for i in range(0, len(ex_model.layers)):
 # from here what we want to do is read from the pickle that we make using activation_data
 # and run train our deconvolution models in models
 # using an l2 loss function
+
+# load from pickle with activation data
+with open('activation_data.pickle', 'rb') as handle:
+  b = pickle.load(handle)
+
+#train (taken from example_keras_cnn.py)
+model2.compile(loss='l2', optimizer = 'adadelta')
+nb_epoch = 2  # try increasing this number
+model.fit(X_train, Y_train, batch_size=batch_size, nb_epoch=nb_epoch,
+          show_accuracy=True, verbose=1, validation_data=(X_test, Y_test))
+score = model.evaluate(X_test, Y_test, show_accuracy=True, verbose=0)
+
+

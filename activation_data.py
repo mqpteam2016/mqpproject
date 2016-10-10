@@ -62,6 +62,8 @@ for index in range(0, len(ex_model.layers)):
     if isinstance(l, Activation):
         newlist.append(index)
 
+new_output = []
+        
 for index in range(0, len(training_data[:400])):
     element = [[training_data[index]]]
     for index in range(len(newlist) - 1):
@@ -70,5 +72,9 @@ for index in range(0, len(training_data[:400])):
         output = f([element[0], 0])
         element = output
         
-    with open('activation_data.pickle', 'wb') as handle:
-      pickle.dump(output, handle)
+    new_output.append(output)
+with open('activation_data.pickle', 'wb') as handle:
+    pickle.dump(new_output, handle)
+
+    
+    
