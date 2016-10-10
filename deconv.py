@@ -18,6 +18,7 @@ from keras.backend.common import _FLOATX
 import pprint
 import pickle
 import inspect
+
 K.set_image_dim_ordering('th')
 from bp0 import *
 
@@ -75,14 +76,14 @@ with open('activation_data.pickle', 'rb') as handle:
 
 batch_size = 16
 
-print(b)
+print(b[0][0])
 
 #train (taken from example_keras_cnn.py)
-for model in models:
+for model in list(enumerate(models)):
     # mse = l2 loss function
-    model.compile(loss='mse', optimizer = 'adadelta')
+    model[1].compile(loss='mse', optimizer = 'adadelta')
     nb_epoch = 2  # try increasing this number
-    model.fit(X_train, Y_train, batch_size=batch_size, nb_epoch=nb_epoch,
+    model[1].fit(np.squeeze(b[model[0]+1]), np.squeeze(b[model[0]]), batch_size=batch_size, nb_epoch=nb_epoch,
           show_accuracy=True, verbose=1)
 
 

@@ -62,17 +62,17 @@ for index in range(0, len(ex_model.layers)):
     if isinstance(l, Activation):
         newlist.append(index)
 
-new_output = []
-        
+new_output = [[] for i in range(len(newlist))]
 for index in range(0, len(training_data[:400])):
     element = [[training_data[index]]]
-    for index in range(len(newlist) - 1):
-        f = K.function([ex_model.layers[newlist[index]].input, K.learning_phase()],
-                       [ex_model.layers[newlist[index + 1]].output])
+    new_output[0].append(element)
+    for i in range(len(newlist) - 1):
+        f = K.function([ex_model.layers[newlist[i]].input, K.learning_phase()],
+                       [ex_model.layers[newlist[i + 1]].output])
         output = f([element[0], 0])
+        new_output[i+1].append(output)
         element = output
-        
-    new_output.append(output)
+
 with open('activation_data.pickle', 'wb') as handle:
     pickle.dump(new_output, handle)
 
