@@ -16,8 +16,8 @@ from keras.layers.convolutional import Convolution2D, Convolution1D, MaxPooling2
 from keras.utils import np_utils
 from keras.backend.common import _FLOATX
 import pprint
-import inspect
 import pickle
+import inspect
 K.set_image_dim_ordering('th')
 from bp0 import *
 
@@ -73,11 +73,16 @@ for i in range(0, len(ex_model.layers)):
 with open('activation_data.pickle', 'rb') as handle:
   b = pickle.load(handle)
 
+batch_size = 16
+
+print(b)
+
 #train (taken from example_keras_cnn.py)
-model2.compile(loss='l2', optimizer = 'adadelta')
-nb_epoch = 2  # try increasing this number
-model.fit(X_train, Y_train, batch_size=batch_size, nb_epoch=nb_epoch,
-          show_accuracy=True, verbose=1, validation_data=(X_test, Y_test))
-score = model.evaluate(X_test, Y_test, show_accuracy=True, verbose=0)
+for model in models:
+    # mse = l2 loss function
+    model.compile(loss='mse', optimizer = 'adadelta')
+    nb_epoch = 2  # try increasing this number
+    model.fit(X_train, Y_train, batch_size=batch_size, nb_epoch=nb_epoch,
+          show_accuracy=True, verbose=1)
 
 
