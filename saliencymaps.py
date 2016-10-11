@@ -38,8 +38,9 @@ filt_result = np.mean(np.squeeze(sal_model.layers[0].get_weights()[0] - weights_
 filt_result /= np.linalg.norm(filt_result)
 result = convolve2d(np.squeeze(X_train[image_in]), filt_result)
 print(filt_result)
-
+print(result.shape)
 plt.figure(figsize=(10,10))
 plt.subplot(1,1,1)
 plt.imshow(result, cmap='gray')
 plt.xlabel("result of saliency map")
+plt.show()
