@@ -77,14 +77,12 @@ with open('activation_data.pickle', 'rb') as handle:
 
 batch_size = 16
 
-reverse_predict = 0
-
 #train (taken from example_keras_cnn.py)
 for model in list(enumerate(models[:2])):
     # mse = l2 loss function
     print(model[0])
     model[1].compile(loss='mse', optimizer = 'adadelta')
-    nb_epoch = 5  # try increasing this number
+    nb_epoch = 15  # try increasing this number
     up = np.array(b[model[0]+1])
     down = np.array(b[model[0]])
     print(up.shape)
@@ -97,10 +95,11 @@ for model in list(enumerate(models[:2])):
     #model[1].evaluate(np.reshape(up, (up.shape[0],up.shape[-3],up.shape[-2],up.shape[-1])),
     #                  np.reshape(down, (down.shape[0],down.shape[-3],down.shape[-2],down.shape[-1])), show_accuracy=True, verbose = 0)
 t = np.array(b[2])
-p = models[1].predict(np.array([np.reshape(t, (t.shape[0], t.shape[-3],t.shape[-2],t.shape[-1]))[0,:,:,:]]))
-p = models[0].predict(p)
-print(p)
 plt.figure(figsize=(10,10))
-plt.subplot(1,1,1)
-plt.imshow(p, cmap='gray')
-plt.xlabel("result of deconv")
+for i in range(9):
+    p = models[1].predict(np.array([np.reshape(t, (t.shape[0], t.shape[-3],t.shape[-2],t.shape[-1]))[i,:,:,:]]))
+    p = models[0].predict(p)
+    plt.subplot(3,3,i + 1)
+    plt.imshow(np.squeeze(p), cmap='gray')
+    plt.xlabel("result of deconv")
+plt.show()
