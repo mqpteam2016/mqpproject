@@ -1,6 +1,7 @@
 
 
 What we did:
+
 * Deconvolutional visualization
 * GoogLeNet V1 with Max Patch visualization
 * Saliency maps visualization, not sure how accurate
