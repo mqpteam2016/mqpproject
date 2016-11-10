@@ -4,10 +4,16 @@ import numpy as np
 from keras import backend as K
 import keras
 
+convolutional_classes = (
+    keras.layers.Convolution2D,
+    keras.layers.Convolution3D,
+    keras.layers.convolutional.ZeroPadding2D,
+    keras.layers.convolutional.ZeroPadding3D
+)
+
 # Get a list of layers that can be used in max_patch
 def get_convolutional_layers(model):
-    legal_classes = (keras.layers.Convolution2D, keras.layers.convolutional.ZeroPadding2D)
-    return [ layer for layer in model.layers if isinstance(layer, legal_classes)]
+    return [ layer for layer in model.layers if isinstance(layer, convolutional_classes)]
 
 
 # Tested/built for Theano... should be tensorflow compatible
@@ -22,7 +28,7 @@ def max_patch(model, data, images=None, layer=None, layer_number=-1, filter_numb
         layer = model.layers[layer_number]
     
     # Make sure the layer is a convolutional layer
-    if not isinstance(layer, (keras.layers.Convolution2D, keras.layers.convolutional.ZeroPadding2D)):
+    if not isinstance(layer, convolutional_classes):
         print('Hey! Your layer is of class {:}. Are you sure you want to get a 2D max patch of it?'.format(layer.__class__))
     
     if (images[0].shape[-1] > layer.output_shape[-1] * patch_size[-1] or
