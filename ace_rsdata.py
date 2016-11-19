@@ -1,5 +1,14 @@
 # Note: you will need to run `source ENV/bin/activate` before running 
 from __future__ import print_function
+
+# Complains that scipy isn't installed if we don't do this...
+# Because we don't have administrative access, we can't change /usr/lib64, and have to deal with what is already installed.
+# Ideally, we'd just use our virtualenv, but sklearn needs to be installed in ~/.local so it *can* access scipy, which can't be installed in the venv because it relies of OpenBlas
+import sys
+sys.path.append("/home/mgaskell/work/mqpproject/ENV/lib64/python2.7")
+sys.path.append("/usr/lib64/python2.7/site-packages")
+sys.path.append("/home/mgaskell/.local/lib/python2.7/site-packages")
+
 import pandas
 import re
 import os
