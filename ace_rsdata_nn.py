@@ -61,7 +61,7 @@ print("Starting training")
 for i in range(len(X_train)*5):
 	current_index = i % len(X_train)
 	model.train_on_batch([X_train[current_index]], [np.array([y_train[current_index]])])
-	print('Trained epoch ' + i)
+	print('Trained epoch ' + str(i))
 	if i % 2:
 		try:
 			os.rename(model_file, model_file + '_epoch_' + str(i-2))
