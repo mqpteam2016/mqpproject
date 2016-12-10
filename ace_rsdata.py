@@ -5,10 +5,9 @@ from __future__ import print_function
 # Because we don't have administrative access, we can't change /usr/lib64, and have to deal with what is already installed.
 # Ideally, we'd just use our virtualenv, but sklearn needs to be installed in ~/.local so it *can* access scipy, which can't be installed in the venv because it relies of OpenBlas
 import sys
-sys.path.append("/home/mgaskell/work/mqpproject/ENV/lib64/python2.7")
 sys.path.append("/usr/lib64/python2.7/site-packages")
 sys.path.append("/home/mgaskell/.local/lib/python2.7/site-packages")
-
+sys.path.append("/home/mgaskell/work/mqpproject/ENV/lib64/python2.7")
 import pandas
 import re
 import os
@@ -48,7 +47,8 @@ def get_dataset(y_column_name='Age'):
 	Y = [ df.loc[df['SubjectID'] == matched_files[filename]][y_column_name] for filename in filenames]
 	X = [ nibabel.load(filename) for filename in filenames]
 	return X, Y
-
+# X[0].get_data() has shape (96, 96, 50, 156), so you might want to reorder them with
+# np.moveaxis(X[0].get_data(), -1, 0)
 
 #NIFTI1 img
 if __name__ == "__main__":
