@@ -1,0 +1,25 @@
+* We did everything from last week! (everyone is shocked)
+* The old convolutional network was poorly set up
+* max patch now works!!!!!
+	- each row is a patch, each column is a z value per patch
+	- need to either make the patch size bigger or something else
+	- run on full dataset (88)
+	- could visualize on the first layer and do max patch on the second layer
+	- try capturing simpler patterns?
+	- still trained for only 5 epochs
+	- could try capturing simpler on the earlier layers, then capture more complex visualizations on later layers
+* Ezra would like to auto-calculate patch size
+	- kong says we can calculate automatically
+	- currently our code does not
+	- depends on how we can use keras
+	- kong's way: go by nodes and trace back; every node in the traceback is included
+	- ezra's way: filter through each layer using keras, traceback to the original image; faking back propagation
+	- minor changes to saliency map can also give us max patch
+* We agreed to work over break
+* TODO for next week:
+	- auto-calculate
+	- fix the broken deep visualization and produce it
+	- try to implement updating training weights?
+	- NO MEETING NEXT WEEK
+
+
