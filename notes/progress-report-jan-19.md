@@ -9,6 +9,7 @@
 * Deep dreams?
 * Polished (& useful) documentation
 * Working examples
+* Auto encoder -> Regions of the brain
 
 ### Week by week timeline:
 1. Done :-(
