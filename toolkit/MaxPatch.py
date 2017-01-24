@@ -19,20 +19,24 @@ that causes the maximum(s) of activation of that filter.
 This particular implementation picks at most one point from each picture.
 """
 class MaxPatch:
-    def __init__(self, model, data, images=None, layer=None, layer_number=-1, filter_number=0, number_of_patches=9, patch_size=(8,8)):
+    def __init__(self, model, data, images=None, layer=None, layer_number=-1, filter_number=0, number_of_patches=9, patch_size=None):
         self.model = model
         self.images = images if images != None else data
         self.layer = layer if layer != None else model.layers[layer_number]
- 	self.filter_number  = filter_number
+        self.filter_number = filter_number
         self.data = data
-	self.patch_size = patch_size
-	self.number_of_patches = number_of_patches
-	# Make sure the layer is a convolutional layer
+        self.patches = None
+        if patch_size == None:
+            patch_size = MaxPatch.calculate_patch_size(self.model, self.layer)
+            print("Auto calculated patch size of {:}".format(patch_size))
+        self.patch_size = patch_size
+        self.number_of_patches = number_of_patches
+        # Make sure the layer is a convolutional layer
         if not isinstance(self.layer, convolutional_classes):
                 print('Hey! Your layer is of class {:}. Are you sure you want to get a max patch of it?'.format(self.layer.__class__))
 
-        if (self.images[0].shape[-1] > self.layer.output_shape[-1] * patch_size[-1] or
-                self.images[0].shape[-2] > self.layer.output_shape[-2] * patch_size[-2]):
+        if (self.images[0].shape[-1] > self.layer.output_shape[-1] * self.patch_size[-1] or
+                self.images[0].shape[-2] > self.layer.output_shape[-2] * self.patch_size[-2]):
             print('Hey! Your patch size is small for this layer\'s output relative to the original image. You might want to increase it.')
 
         # Has shape (1), where each element is the layer's output.
@@ -40,17 +44,17 @@ class MaxPatch:
         self.get_layer_output = K.function([model.layers[0].input, K.learning_phase()],
                             [self.layer.output])
 
-	if len(self.patch_size) != len(self.images[0].shape):
-	    print('Hey! Your patch size has the wrong number of dimensions ({:}) to match to an image ({:})!'.format(len(self.patch_size), len(self.images[0].shape)))
+        if len(self.patch_size)+1 != len(self.images[0].shape):
+            print('Hey! Your patch size has the wrong number of dimensions ({:}) to match to an image ({:})! (patch size should have one less dimension than image shape)'.format(len(self.patch_size), len(self.images[0].shape)))
 
-	if model.layers[0].input_shape[1:] != data[0].shape:
-	    print('Data shape {:} does not match model input shape {:}.'.format(data[0].shape, model.layers[0].input_shape))
+        if model.layers[0].input_shape[1:] != data[0].shape:
+            print('Data shape {:} does not match model input shape {:}.'.format(data[0].shape, model.layers[0].input_shape))
 
 
     def generate(self):
         """Does the heavy lifting to generate a MaxPatch visualization"""
         # List of np.arrays(shape=(width, height))
-	self.outputs = [self.get_layer_output([np.array([inputs]), 0])[0][0][self.filter_number] for inputs in self.data]
+        self.outputs = [self.get_layer_output([np.array([inputs]), 0])[0][0][self.filter_number] for inputs in self.data]
         # Get the maximum values
         maxes = [output.argmax() for output in self.outputs]
         # The indices of the images with the n highest maxes
@@ -65,11 +69,35 @@ class MaxPatch:
                 for index in range(len(image_indices))]
 
     def show(self):
-        """Actually shows the visualization"""
-        for patch in self.patches:
-            plt.figure()
-            plt.imshow(patch)
-            plt.show()
+        """Actually shows the visualization. Assumes that patches are 2D images (with the 1st dimension as color)"""
+        
+        if not self.patches:
+            self.generate()
+        
+        from matplotlib import pyplot as plt
+        fig, axarr = plt.subplots(1, len(self.patches))
+        
+        fig.suptitle("Patches corresponding to maximally active locations on layer: {:}, filter: {:}".format(self.layer.name, self.filter_number), y=0.4)
+        
+        for i in range(len(self.patches)):
+            
+            reshaped_patch = np.moveaxis(self.patches[i], 0, -1)
+            
+            if not reshaped_patch.shape[-1] in [1, 3, 4] and len(reshaped_patch.shape) in [2, 3]:
+                raise ValueError("Expected patches to be 2D, and possibly with the 1st dimension as a color. Got shape {:}".format(self.patches[i].shape))
+            if reshaped_patch.shape[-1] == 1:
+                reshaped_patch = np.squeeze(reshaped_patch, -1)
+            axarr[i].axis('off')
+            axarr[i].imshow(reshaped_patch, cmap="gray", interpolation='none')
+        plt.show()
+
+    def save(self, filename='patches.png'):
+        """Saves a png of the patches into the specified file"""
+        raise "Not implemented"
+        plt.figure()
+        for i in len(self.patches):
+            plt.subplot(i, self.patches[i])
+            
 
     @staticmethod
     def get_convolutional_layers(model):
@@ -79,19 +107,30 @@ class MaxPatch:
     @staticmethod
     def patch_from_location(image, max_location, patch_size, outputs):
         # Multidimensional way of getting a patch from a location
+
+        # For a image of (1, 28, 28) and a filter output of (14, 14), this should produce (2, 2)
         ratios = np.array(image.shape)[-len(outputs[0].shape):].astype('float') / np.array(outputs[0].shape)
         image_max_location = ratios * max_location
         extents = []
         patch = image
+        # Clip the last len(outputs[0].shape) to the patch size (e.g. for an image of (3, 28, 28), make it (3, 8, 8))
+        for axis in range(-1,-(len(ratios)+1), -1): # Go through the axis, starting at Z
+            min_patch_index = image_max_location[axis]-patch_size[axis]//2
+            min_patch_index = int(np.clip(min_patch_index, 0, image.shape[axis]-patch_size[axis]))
+            patch = np.moveaxis(np.moveaxis(patch, axis, 0)[min_patch_index:min_patch_index+patch_size[axis]], 0, axis)
+        """
         for i in range(len(ratios)):
             min_patch_index = image_max_location[i]-patch_size[i]//2
             min_patch_index = int(np.clip(min_patch_index, 0, image.shape[i]-patch_size[i]))
+            
             patch = np.moveaxis(np.moveaxis(patch, i, 0)[min_patch_index:min_patch_index+patch_size[i]], 0, i)
+            print("patch.shape", patch.shape)
+        """
         return patch
 
     @staticmethod
     def patch_from_location2D(image, max_location, patch_size, outputs):
-        """Works only for 2D images"""  
+        """Works only for 2D images"""
         x_ratio = image.shape[1]/outputs[0].shape[-1]
         y_ratio = image.shape[0]/outputs[0].shape[-2]
         x = int(max_location[1] * x_ratio)
@@ -100,6 +139,48 @@ class MaxPatch:
         left = np.clip(x-patch_size[1]//2,   0, image.shape[1])
         return image[top:np.clip(top+patch_size[0], 0, image.shape[0]),
             left:np.clip(left+patch_size[1], 0, image.shape[1])]
+
+    # The shape of the section of the input to a layer that fully determines a pixel of the layer's output
+    @staticmethod
+    def _input_multiplier(layer):
+        if hasattr(layer, 'pool_size'):
+            return layer.pool_size # For pooling layers
+        elif hasattr(layer, 'filter_length'):
+            return (layer.filter_length,) # For 1D convolutional layers
+        elif hasattr(layer, 'nb_row') and hasattr(layer, 'nb_col'):
+            return (layer.nb_row, layer.nb_col)
+        elif (hasattr(layer, 'kernel_dim1')
+          and hasattr(layer, 'kernel_dim2')
+          and hasattr(layer, 'kernel_dim3')):
+            # 3D convolutional layer
+            return (layer.kernel_dim1, layer.kernel_dim2, layer.kernel_dim3)
+        else:
+            return (1, 1,1,1) # Assume it's an activation layer or the like
+
+    @staticmethod
+    def calculate_patch_size(model, examined_layer):
+        """
+        Calculates an appropriate patch size for a max patch visualization.
+        Isn't always reliable.
+        """
+        # Assumes the model is sequential
+        # Works for up to 3 dimensions...
+        from keras.models import Sequential
+        if not isinstance(model, Sequential):
+            print("Your model isn't sequential... cannot calculate patch size.\nUsing default patch size of (8,8)")
+            return (8,8)
+
+        i = len(model.layers)-1
+        while model.layers[i] != examined_layer and i != 0:
+            i-=1
+
+        patch_size = (1,1,1)
+        while i >= 0:
+            m = MaxPatch._input_multiplier(model.layers[i])
+            patch_size = [x[0]*x[1] for x in zip(patch_size, m)]
+            i-=1
+        return tuple(patch_size)
+
 
 
 
@@ -142,4 +223,3 @@ if __name__ == "__main__":
         plt.figure()
         plt.imshow(patch)
         plt.show()
-
