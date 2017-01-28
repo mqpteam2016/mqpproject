@@ -1,0 +1,43 @@
+(Scans, 96, 96, 50, 1)
+
+We're not using scans, so:
+(96, 96, 50, 1)
+
+regions done in preprocessing - quick comparison to auto encode or not
+
+~ 90 time series -> pairwise comparisons conv2D (1 x 10) X nfilters
+
+Dense -> result
+
+
+-------------------------------------------------
+Have HIGH L1
+
+conv
+conv
+conv
+pool (10, 10, 5)
+conv
+conv
+conv
+pool (5, 5, 3)
+conv
+conv
+conv
+(pool) <-- remove
+dense -> result
+
+test with two cases:
+5x5x5
+3x3x3
+1x1x1
+
+and bigger, non-arbitrary sizes
+
+Children Depression Result Score (CDRS)
+CDRS toal?
+or Manic yes/no
+*ASK KONG ABOUT THE PATIENT DATA SO WE KNOW WHAT WE'RE LOOKING FOR*
+
+standardize brains!!!!!
+
