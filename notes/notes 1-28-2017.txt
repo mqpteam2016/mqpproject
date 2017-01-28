@@ -2,8 +2,7 @@
 
 regions done in preprocessing - quick comparison to auto encode or not
 
-~ 90 time series -> pairwise comparisons conv2D (2 + 10
-	90 choose ^2, 4005X
+~ 90 time series -> pairwise comparisons conv2D (1 x 10) X nfilters
 
 Dense -> result
 
@@ -30,3 +29,9 @@ test with two cases:
 1x1x1
 
 and bigger, non-arbitrary sizes
+
+Children Depression Result Score (CDRS)
+CDRS toal?
+or Manic yes/no
+*ASK KONG ABOUT THE PATIENT DATA SO WE KNOW WHAT WE'RE LOOKING FOR*
+
