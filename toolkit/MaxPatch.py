@@ -69,15 +69,63 @@ class MaxPatch:
         self.patches = [MaxPatch.patch_from_location(self.images[image_indices[index]], max_locations[index], self.patch_size, self.outputs)
                 for index in range(len(image_indices))]
 
-    def show(self):
-        """Actually shows the visualization. Assumes that patches are 2D images (with the 1st dimension as color)"""
-        self._show2D().show()
+    def save(self, filename='patches.png', dimensions=2):
+        """Saves a png of the patches into the specified file"""
+        self.show(filename=filename, dimensions=dimensions)
+
+    def show(self, dimensions=2, filename=None):
+        """
+        Actually shows the visualization.
+        Assumes that patches are 2D images (with the 1st dimension as color)
+        or 3D images (and dimensions=3)
+        """
+        fig = None
+        if not dimensions == 3:
+            fig = self._show2D()
+        else:
+            fig = self._show3D()
+
+        if filename:
+            fig.savefig(filename, bbox_inches='tight')
+        else:
+            fig.show()
+
+    def _show3D(self):
+        if not self.patches:
+            self.generate()
+
+        fig, axarr = plt.subplots(3, len(self.patches))
+
+        fig.suptitle("Patches corresponding to maximally active locations on layer: {:}, filter: {:}".format(self.layer.name, self.filter_number), y=0.4)
+        for i in range(len(self.patches)):
+            # Reshaping patch
+            patch = self.patches[i]
+            if len(patch.shape) == 4:
+                patch = np.squeeze(patch, axis=(0,))
+            if not len(patch.shape) == 3:
+                raise ValueError("Expected patches to be 3D (or 4D with the first dimension of 1). Got shape {:}".format(self.patches[i].shape))
+
+            # For each patch, draw 3 cross sections in different directions
+            subplots = axarr[:, i]
+            x, y, z = patch.shape
+
+            subplots[0].axis('off')
+            subplots[0].set_title('X={:}'.format(x/2))
+            subplots[0].imshow(patch[x/2, :, :], cmap="gray", interpolation='none')
+
+            subplots[1].axis('off')
+            subplots[1].set_title('Y={:}'.format(y/2))
+            subplots[1].imshow(patch[:,y/2, :], cmap="gray", interpolation='none')
+
+            subplots[2].axis('off')
+            subplots[2].set_title('Z={:}'.format(z/2))
+            subplots[2].imshow(patch[:,:,z/2], cmap="gray", interpolation='none')
+        return fig
 
     def _show2D(self):
         """Create a matplotlib figure to show"""
         if not self.patches:
             self.generate()
-
 
         fig, axarr = plt.subplots(1, len(self.patches))
 
@@ -94,11 +142,6 @@ class MaxPatch:
             axarr[i].axis('off')
             axarr[i].imshow(reshaped_patch, cmap="gray", interpolation='none')
         return fig
-
-    def save(self, filename='patches.png'):
-        """Saves a png of the patches into the specified file"""
-        self._show2D().savefig(filename, bbox_inches='tight')
-
 
     @staticmethod
     def get_convolutional_layers(model):
