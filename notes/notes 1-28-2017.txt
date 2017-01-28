@@ -1,0 +1,32 @@
+(Scans, 96, 96, 50, 1)
+
+regions done in preprocessing - quick comparison to auto encode or not
+
+~ 90 time series -> pairwise comparisons conv2D (2 + 10
+	90 choose ^2, 4005X
+
+Dense -> result
+
+
+-------------------------------------------------
+
+conv
+conv
+conv
+pool (10, 10, 5)
+conv
+conv
+conv
+pool (5, 5, 3)
+conv
+conv
+conv
+(pool) <-- remove
+dense -> result
+
+test with two cases:
+5x5x5
+3x3x3
+1x1x1
+
+and bigger, non-arbitrary sizes
