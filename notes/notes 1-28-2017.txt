@@ -1,5 +1,8 @@
 (Scans, 96, 96, 50, 1)
 
+We're not using scans, so:
+(96, 96, 50, 1)
+
 regions done in preprocessing - quick comparison to auto encode or not
 
 ~ 90 time series -> pairwise comparisons conv2D (1 x 10) X nfilters
