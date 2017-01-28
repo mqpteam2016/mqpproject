@@ -1,6 +1,7 @@
 import numpy as np
 from keras import backend as K
 import keras
+from matplotlib import pyplot as plt
 
 # A list of classes that are considered convolutional layers.
 # Used to determine what layers are condidered convolutional in get_convolutional_layers
@@ -70,34 +71,34 @@ class MaxPatch:
 
     def show(self):
         """Actually shows the visualization. Assumes that patches are 2D images (with the 1st dimension as color)"""
-        
+        self._show2D().show()
+
+    def _show2D(self):
+        """Create a matplotlib figure to show"""
         if not self.patches:
             self.generate()
-        
-        from matplotlib import pyplot as plt
+
+
         fig, axarr = plt.subplots(1, len(self.patches))
-        
+
         fig.suptitle("Patches corresponding to maximally active locations on layer: {:}, filter: {:}".format(self.layer.name, self.filter_number), y=0.4)
-        
+
         for i in range(len(self.patches)):
-            
+
             reshaped_patch = np.moveaxis(self.patches[i], 0, -1)
-            
+
             if not reshaped_patch.shape[-1] in [1, 3, 4] and len(reshaped_patch.shape) in [2, 3]:
                 raise ValueError("Expected patches to be 2D, and possibly with the 1st dimension as a color. Got shape {:}".format(self.patches[i].shape))
             if reshaped_patch.shape[-1] == 1:
                 reshaped_patch = np.squeeze(reshaped_patch, -1)
             axarr[i].axis('off')
             axarr[i].imshow(reshaped_patch, cmap="gray", interpolation='none')
-        plt.show()
+        return fig
 
     def save(self, filename='patches.png'):
         """Saves a png of the patches into the specified file"""
-        raise "Not implemented"
-        plt.figure()
-        for i in len(self.patches):
-            plt.subplot(i, self.patches[i])
-            
+        self._show2D().savefig(filename, bbox_inches='tight')
+
 
     @staticmethod
     def get_convolutional_layers(model):
@@ -118,14 +119,6 @@ class MaxPatch:
             min_patch_index = image_max_location[axis]-patch_size[axis]//2
             min_patch_index = int(np.clip(min_patch_index, 0, image.shape[axis]-patch_size[axis]))
             patch = np.moveaxis(np.moveaxis(patch, axis, 0)[min_patch_index:min_patch_index+patch_size[axis]], 0, axis)
-        """
-        for i in range(len(ratios)):
-            min_patch_index = image_max_location[i]-patch_size[i]//2
-            min_patch_index = int(np.clip(min_patch_index, 0, image.shape[i]-patch_size[i]))
-            
-            patch = np.moveaxis(np.moveaxis(patch, i, 0)[min_patch_index:min_patch_index+patch_size[i]], 0, i)
-            print("patch.shape", patch.shape)
-        """
         return patch
 
     @staticmethod
