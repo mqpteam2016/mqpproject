@@ -45,8 +45,8 @@ class MaxPatch:
         self.get_layer_output = K.function([model.layers[0].input, K.learning_phase()],
                             [self.layer.output])
 
-        if len(self.patch_size)+1 != len(self.images[0].shape):
-            print('Hey! Your patch size has the wrong number of dimensions ({:}) to match to an image ({:})! (patch size should have one less dimension than image shape)'.format(len(self.patch_size), len(self.images[0].shape)))
+        if len(self.patch_size)+1 != len(self.images[0].shape) and len(self.patch_size) != len(self.images[0].shape):
+            print('Hey! Your patch size has the wrong number of dimensions ({:}) to match to an image ({:})! (patch size should have the same or one less dimension than image shape)'.format(len(self.patch_size), len(self.images[0].shape)))
 
         if model.layers[0].input_shape[1:] != data[0].shape:
             print('Data shape {:} does not match model input shape {:}.'.format(data[0].shape, model.layers[0].input_shape))
