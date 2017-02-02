@@ -193,6 +193,33 @@ class MaxPatch:
         else:
             return (1, 1,1,1) # Assume it's an activation layer or the like
 
+        # The shape of the section of the input to a layer that fully determines a pixel of the layer's output
+    @staticmethod
+    def _increase_patch_size(layer, input_patch=(1,1,1,1)):
+        # Assumes that stride or subsample=1,
+        # otherwise I should be doing something like last_layer.subsample[0]
+        
+        if hasattr(layer, 'pool_size'):
+            m = layer.pool_size # For pooling layers
+            return [x[0]*x[1] for x in zip(input_patch, m)]
+        elif hasattr(layer, 'filter_length'):
+            # For 1D convolutional layers
+            return (input_patch[0]+2*layer.filter_length,)
+        elif hasattr(layer, 'nb_row') and hasattr(layer, 'nb_col'):
+            return (input_patch[0]+2*layer.nb_row,
+                    input_patch[1]+2*layer.nb_col)
+        elif (hasattr(layer, 'kernel_dim1')
+          and hasattr(layer, 'kernel_dim2')
+          and hasattr(layer, 'kernel_dim3')):
+            # 3D convolutional layer
+            return (
+                input_patch[0]+2*layer.kernel_dim1,
+                input_patch[1]+2*layer.kernel_dim2,
+                input_patch[2]+2*layer.kernel_dim3
+            )
+        else:
+            return (1, 1,1,1) # Assume it's an activation layer or the like
+        
     @staticmethod
     def calculate_patch_size(model, examined_layer):
         """
