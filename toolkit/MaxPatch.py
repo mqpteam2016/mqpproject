@@ -91,10 +91,11 @@ class MaxPatch:
             fig.show()
 
     def _show3D(self):
+        """Creates a matplotlib figure with different 'images' as columns, and their cross sections as rows."""
         if not self.patches:
             self.generate()
 
-        fig, axarr = plt.subplots(3, len(self.patches))
+        fig, axarr = plt.subplots(self.patches[0].shape[-1], len(self.patches))
 
         fig.suptitle("Patches corresponding to maximally active locations on layer: {:}, filter: {:}".format(self.layer.name, self.filter_number), y=0.4)
         for i in range(len(self.patches)):
@@ -105,21 +106,12 @@ class MaxPatch:
             if not len(patch.shape) == 3:
                 raise ValueError("Expected patches to be 3D (or 4D with the first dimension of 1). Got shape {:}".format(self.patches[i].shape))
 
-            # For each patch, draw 3 cross sections in different directions
-            subplots = axarr[:, i]
-            x, y, z = patch.shape
-
-            subplots[0].axis('off')
-            subplots[0].set_title('X={:}'.format(x/2))
-            subplots[0].imshow(patch[x/2, :, :], cmap="gray", interpolation='none')
-
-            subplots[1].axis('off')
-            subplots[1].set_title('Y={:}'.format(y/2))
-            subplots[1].imshow(patch[:,y/2, :], cmap="gray", interpolation='none')
-
-            subplots[2].axis('off')
-            subplots[2].set_title('Z={:}'.format(z/2))
-            subplots[2].imshow(patch[:,:,z/2], cmap="gray", interpolation='none')
+            # For each patch, draw all cross sections
+            for z in range(patch.shape[-1]):
+                subplot = axarr[z,i]
+                subplot.axis('off')
+                subplot.set_title('Z={:}'.format(z))
+                subplot.imshow(patch[:, :, z], cmap="gray", interpolation='none')
         return fig
 
     def _show2D(self):
@@ -198,6 +190,9 @@ class MaxPatch:
     def _increase_patch_size(layer, input_patch=(1,1,1,1)):
         # Assumes that stride or subsample=1,
         # otherwise I should be doing something like last_layer.subsample[0]
+        
+        if hasattr(layer, 'subsample') and layer.subsample[0] != 1:
+            print("Patch size doesn't currently account for layers with stride. Patches will be too small")
         
         if hasattr(layer, 'pool_size'):
             m = layer.pool_size # For pooling layers
