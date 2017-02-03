@@ -95,11 +95,12 @@ class MaxPatch:
         if not self.patches:
             self.generate()
 
-        fig, axarr = plt.subplots(self.patches[0].shape[-1], len(self.patches))
+        fig, axarr = plt.subplots(self.patches[0].shape[-1]+1, len(self.patches))
+        axarr = axarr[1:]
 
-        fig.set_size_inches(len(self.patches), self.patches[0].shape[-1])
+        fig.set_size_inches(len(self.patches), self.patches[0].shape[-1]+1)
         
-        fig.suptitle("Patches corresponding to maximally active locations on layer: {:}, filter: {:}".format(self.layer.name, self.filter_number), y=0.4)
+        fig.suptitle("Patches corresponding to maximally active locations on layer: {:}, filter: {:}".format(self.layer.name, self.filter_number), y=0.0)
         for i in range(len(self.patches)):
             # Reshaping patch
             patch = self.patches[i]
@@ -283,3 +284,5 @@ if __name__ == "__main__":
         plt.figure()
         plt.imshow(patch)
         plt.show()
+
+
