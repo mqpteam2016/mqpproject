@@ -68,6 +68,9 @@ class MaxPatch:
 
         self.patches = [MaxPatch.patch_from_location(self.images[image_indices[index]], max_locations[index], self.patch_size, self.outputs)
                 for index in range(len(image_indices))]
+        
+        self.max_locations = max_locations
+        self.image_indices = image_indices
 
     def save(self, filename='patches.png', dimensions=2):
         """Saves a png of the patches into the specified file"""
@@ -95,10 +98,9 @@ class MaxPatch:
         if not self.patches:
             self.generate()
 
-        fig, axarr = plt.subplots(self.patches[0].shape[-1]+1, len(self.patches))
-        axarr = axarr[1:]
+        fig, axarr = plt.subplots(self.patches[0].shape[-1], len(self.patches))
 
-        fig.set_size_inches(len(self.patches), self.patches[0].shape[-1]+1)
+        fig.set_size_inches(len(self.patches), self.patches[0].shape[-1])
         
         fig.suptitle("Patches corresponding to maximally active locations on layer: {:}, filter: {:}".format(self.layer.name, self.filter_number), y=0.0)
         for i in range(len(self.patches)):

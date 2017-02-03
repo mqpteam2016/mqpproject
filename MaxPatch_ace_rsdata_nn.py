@@ -35,14 +35,50 @@ X = [np.expand_dims(np.moveaxis(x.get_data(), -1, 0)[0], axis=-1) for x in X]
 
 X_train, X_test, Y_train, y_test = train_test_split(X, Y, test_size=0.2, random_state=0)
 
+def show3D(self):
+    """Creates a matplotlib figure with different 'images' as columns, and their cross sections as rows."""
+    if not self.patches:
+        self.generate()
+
+    fig, axarr = plt.subplots(self.patches[0].shape[-1]+1, len(self.patches))
+    axarr, labels = axarr[1:], axarr[0]
+    
+    fig.set_size_inches(len(self.patches), self.patches[0].shape[-1]+1)
+    
+    
+    
+    fig.suptitle("Patches corresponding to maximally active locations on layer: {:}, filter: {:}".format(self.layer.name, self.filter_number), y=0.0)
+    for i in range(len(self.patches)):
+        labels[i].axis('off')
+        labels[i].text(0.5, 0.5,
+          "Location {:}\nin image {:}".format(self.max_locations[i], self.image_indices[i]))
+        
+        # Reshaping patch
+        patch = self.patches[i]
+        if len(patch.shape) == 4:
+            patch = np.squeeze(patch, axis=(0,))
+        if not len(patch.shape) == 3:
+            raise ValueError("Expected patches to be 3D (or 4D with the first dimension of 1). Got shape {:}".format(self.patches[i].shape))
+
+        # For each patch, draw all cross sections
+        for z in range(patch.shape[-1]):
+            subplot = axarr[z,i]
+            subplot.axis('off')
+            subplot.set_title('Z={:}'.format(z))
+            subplot.imshow(patch[:, :, z], cmap="gray", interpolation='none')
+    return fig
+
+
+
 
 print("Making visualization")
 convolutional_layers = MaxPatch.get_convolutional_layers(model)
 images = list(map(lambda x:np.squeeze(x), X_train))
 for layer in convolutional_layers:
     for i in range(layer.nb_filter):
-         mp = MaxPatch(model, X_train, images=images, layer=layer, filter_number=i)
-         mp.generate()
-         print('Patch shape:', mp.patches[0].shape)
-         mp.save('img/ace_rsdata_layer_'+layer.name+'_filter'+str(i)+'_max_patches.png', dimensions=3)
+        mp = MaxPatch(model, X_train, images=images, layer=layer, filter_number=i)
+        mp.generate()
+        print('Patch shape:', mp.patches[0].shape)
+        show3D(mp).savefig('img/ace_rsdata_layer_'+layer.name+'_filter'+str(i)+'_max_patches.png')
+        #mp.save('img/ace_rsdata_layer_'+layer.name+'_filter'+str(i)+'_max_patches.png', dimensions=3)
 
