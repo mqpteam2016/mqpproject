@@ -80,5 +80,6 @@ for layer in convolutional_layers:
         mp.generate()
         print('Patch shape:', mp.patches[0].shape)
         show3D(mp).savefig('img/ace_rsdata_layer_'+layer.name+'_filter'+str(i)+'_max_patches.png')
+        plt.close("all")
         #mp.save('img/ace_rsdata_layer_'+layer.name+'_filter'+str(i)+'_max_patches.png', dimensions=3)
 
