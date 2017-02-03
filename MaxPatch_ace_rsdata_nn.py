@@ -50,8 +50,8 @@ def show3D(self):
     fig.suptitle("Patches corresponding to maximally active locations on layer: {:}, filter: {:}".format(self.layer.name, self.filter_number), y=0.0)
     for i in range(len(self.patches)):
         labels[i].axis('off')
-        labels[i].text(0.5, 0.5,
-          "Location {:}\nin image {:}".format(self.max_locations[i], self.image_indices[i]))
+        labels[i].text(0.0, 0.5,
+          "{:}\nin {:}".format(self.max_locations[i], self.image_indices[i]), {"size": "smaller"} )
         
         # Reshaping patch
         patch = self.patches[i]
