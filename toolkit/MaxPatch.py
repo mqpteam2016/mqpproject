@@ -97,7 +97,7 @@ class MaxPatch:
 
         fig, axarr = plt.subplots(self.patches[0].shape[-1], len(self.patches))
 
-        fig.set_size_inches(self.patches[0].shape[-1], len(self.patches))
+        fig.set_size_inches(len(self.patches), self.patches[0].shape[-1])
         
         fig.suptitle("Patches corresponding to maximally active locations on layer: {:}, filter: {:}".format(self.layer.name, self.filter_number), y=0.4)
         for i in range(len(self.patches)):
