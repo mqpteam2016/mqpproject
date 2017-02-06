@@ -5,7 +5,7 @@ import numpy as np
 from ace_rsdata import *
 import os
 
-X, Y = get_dataset('Age')
+X, Y = get_dataset('DX')
 dummy_x = np.zeros(X[0].shape)
 input_shape = np.expand_dims(np.moveaxis(dummy_x, -1, 0)[0], axis=-1).shape
 print "Input shape: " + str(input_shape)
@@ -14,7 +14,7 @@ from toolkit.MaxPatch import *
 import keras
 
 print("Loading model")
-model_file = "h5_files/ace_rsdata_nn_01_28.h5"
+model_file = "h5_files/ace_rsdata_nn_variant1_02_04.h5"
 model = keras.models.load_model(model_file)
 
 
@@ -24,10 +24,10 @@ from sklearn.model_selection import train_test_split
 from keras.utils import np_utils
 
 # Decreasing input size to dramatically reduce training time for testing
-X, Y = X[0:7], Y[0:7]
+#X, Y = X[0:7], Y[0:7]
 
 # Dividing into 5 categories because the oldest person is 19
-Y = np_utils.to_categorical([int(y/4) for y in Y], nb_classes=5)
+Y = np_utils.to_categorical([int(y-1) for y in Y], nb_classes=4)
 
 # X's shape is  ( , 96, 96, 50, 1) or (scans, x, y, z, dummy value)
 X = [np.expand_dims(np.moveaxis(x.get_data(), -1, 0)[0], axis=-1) for x in X]
@@ -73,10 +73,10 @@ def show3D(self):
 
 print("Making visualization")
 convolutional_layers = MaxPatch.get_convolutional_layers(model)
-images = list(map(lambda x:np.squeeze(x), X_train))
+images = list(map(lambda x:np.squeeze(x), X))
 for layer in convolutional_layers:
     for i in range(layer.nb_filter):
-        mp = MaxPatch(model, X_train, images=images, layer=layer, filter_number=i)
+        mp = MaxPatch(model, X, images=images, layer=layer, filter_number=i)
         mp.generate()
         print('Patch shape:', mp.patches[0].shape)
         show3D(mp).savefig('img/ace_rsdata_layer_'+layer.name+'_filter'+str(i)+'_max_patches.png')

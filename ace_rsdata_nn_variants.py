@@ -9,7 +9,7 @@
 # A simple neural network that predicts Age when given a raw slice of MRI data
 
 train_network = True
-variant = 1
+variant = 1 
 
 # Get the data
 import numpy as np
@@ -122,30 +122,30 @@ from keras.utils import np_utils
 # Decreasing input size to dramatically reduce training time for testing
 # X, Y = X[0:7], Y[0:7]
 
-Y = np_utils.to_categorical(Y, nb_classes=4)
+Y = np_utils.to_categorical([y-1 for y in Y], nb_classes=4)
 
 # X's shape is  ( , 96, 96, 50, 1) or (scans, x, y, z, dummy value)
 X = [np.expand_dims(np.moveaxis(x.get_data(), -1, 0)[0], axis=-1) for x in X]
 # X = [np.expand_dims(x.get_data(), axis=0) for x in X]
 
-Y = list(map(lambda x: x.values[0], Y))
-X_train, X_test, Y_train, y_test = train_test_split(X, Y, test_size=0.2, random_state=0)
+#Y = list(map(lambda x: x.values[0], Y))
+X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2, random_state=0)
 
 # Train the NN and periodically save it
 if train_network:
     print("Starting training")
-    for i in range(1000):
-        #model.train_on_batch(np.array(X_train), np.array(y_train))
+    for i in range(0, 1000, 50):
+        model.fit(np.array(X_train), np.array(Y_train), nb_epoch=50)
         print('Trained epoch ' + str(i))
         if i % 100 == 0:
             try:
-                os.rename(model_file, model_file + '_epoch_' + str(i))
+                os.rename(model_file, model_file + '_epoch_' + str(i-100))
             except OSError, e:
                 print(model_file + " Doesn't yet exist")
             model.save(model_file)
 
 model.summary()
 print(np.array(X_test).shape)
-loss = model.evaluate(np.array(X_test), np.array(y_test))
+loss = model.evaluate(np.array(X_test), np.array(Y_test))
 print(loss)
 
