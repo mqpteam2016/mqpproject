@@ -65,11 +65,11 @@ class MaxPatch:
         # Maximum locations in each 'image'
         # list of (x, y) locations... (technically, (x,y,z,q) locations are fine too)
         max_locations = [np.unravel_index(output.argmax(), output.shape) for output in max_outputs]
-
-        self.patches = [MaxPatch.patch_from_location(self.images[image_indices[index]], max_locations[index], self.patch_size, self.outputs)
+        self.max_locations = []
+        self.patches = [MaxPatch.patch_from_location(self.images[image_indices[index]], max_locations[index], self.patch_size, self.outputs, image_max_locations=self.image_max_locations)
                 for index in range(len(image_indices))]
         
-        self.max_locations = max_locations
+        self._uncorrected_max_locations = max_locations
         self.image_indices = image_indices
 
     def save(self, filename='patches.png', dimensions=2):
@@ -146,12 +146,13 @@ class MaxPatch:
         return [ layer for layer in model.layers if isinstance(layer, convolutional_classes)]
 
     @staticmethod
-    def patch_from_location(image, max_location, patch_size, outputs):
+    def patch_from_location(image, max_location, patch_size, outputs, image_max_locations=[]):
         # Multidimensional way of getting a patch from a location
 
         # For a image of (1, 28, 28) and a filter output of (14, 14), this should produce (2, 2)
         ratios = np.array(image.shape)[-len(outputs[0].shape):].astype('float') / np.array(outputs[0].shape)
         image_max_location = ratios * max_location
+        image_max_locations.append(image_max_location)
         extents = []
         patch = image
         # Clip the last len(outputs[0].shape) to the patch size (e.g. for an image of (3, 28, 28), make it (3, 8, 8))
