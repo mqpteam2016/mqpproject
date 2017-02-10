@@ -1,3 +1,5 @@
+# Train this by running sbatch ace_rsdata_job.sh
+
 #!/work/mgaskell/mqpproject/ENV/bin/python
 #SBATCH -N1
 #SBATCH --partition=shared
@@ -8,8 +10,12 @@
 ######
 # A simple neural network that predicts Age when given a raw slice of MRI data
 
+# The 'new' networks increase the number of featuremap dimensions in a way not unlike what the following paper recommends
+# https://arxiv.org/pdf/1610.02915v2.pdf
+
+
 train_network = True
-variant = 1 
+variant = 2 
 
 # Get the data
 import numpy as np
@@ -22,7 +28,7 @@ input_shape = np.expand_dims(np.moveaxis(dummy_x, -1, 0)[0], axis=-1).shape
 print "Input shape: " + str(input_shape)
 
 # Assemble the NN
-model_file = 'h5_files/ace_rsdata_nn_variant{:}_02_04.h5'.format(variant)
+model_file = 'h5_files/ace_rsdata_nn_variant{:}_02_10.h5'.format(variant)
 model = None
 
 try:
@@ -36,7 +42,77 @@ except IOError:
     from keras import backend as K
     K.set_image_dim_ordering('tf')
 
-    if variant == 1: # 5 -> 3 -> 1 layers
+    if variant == 1:
+        model = Sequential()
+        model.add(Convolution3D(16, 5, 5, 5, input_shape=input_shape, border_mode='same'))
+        model.add(Activation('relu'))
+        model.add(Convolution3D(24, 3, 3, 3, input_shape=input_shape, border_mode='same'))
+        model.add(Activation('relu'))
+        model.add(Convolution3D(48, 1, 1, 1, input_shape=input_shape, border_mode='same'))
+        model.add(Activation('relu'))
+        model.add(MaxPooling3D(pool_size=(10, 10, 5)))
+        model.add(Convolution3D(16, 5, 5, 5, input_shape=input_shape, border_mode='same'))
+        model.add(Activation('relu'))
+        model.add(Convolution3D(24, 3, 3, 3, input_shape=input_shape, border_mode='same'))
+        model.add(Activation('relu'))
+        model.add(Convolution3D(48, 1, 1, 1, input_shape=input_shape, border_mode='same'))
+        model.add(Activation('relu'))
+        model.add(MaxPooling3D(pool_size=(5, 5, 3)))
+        model.add(Convolution3D(16, 5, 5, 5, input_shape=input_shape, border_mode='same'))
+        model.add(Activation('relu'))
+        model.add(Convolution3D(24, 3, 3, 3, input_shape=input_shape, border_mode='same'))
+        model.add(Activation('relu'))
+        model.add(Convolution3D(48, 1, 1, 1, input_shape=input_shape, border_mode='same'))
+        model.add(Activation('relu'))
+    elif variant == 2:
+        model = Sequential()
+
+        model.add(Convolution3D(16, 1, 1, 1, input_shape=input_shape, border_mode='same'))
+        model.add(Activation('relu'))
+        model.add(Convolution3D(24, 3, 3, 3, input_shape=input_shape, border_mode='same'))
+        model.add(Activation('relu'))
+        model.add(Convolution3D(48, 5, 5, 5, input_shape=input_shape, border_mode='same'))
+        model.add(Activation('relu'))
+        model.add(MaxPooling3D(pool_size=(10, 10, 5)))
+        model.add(Convolution3D(16, 1, 1, 1, input_shape=input_shape, border_mode='same'))
+        model.add(Activation('relu'))
+        model.add(Convolution3D(24, 3, 3, 3, input_shape=input_shape, border_mode='same'))
+        model.add(Activation('relu'))
+        model.add(Convolution3D(48, 5, 5, 5, input_shape=input_shape, border_mode='same'))
+        model.add(Activation('relu'))
+        model.add(MaxPooling3D(pool_size=(5, 5, 3)))
+        model.add(Convolution3D(16, 1, 1, 1, input_shape=input_shape, border_mode='same'))
+        model.add(Activation('relu'))
+        model.add(Convolution3D(24, 3, 3, 3, input_shape=input_shape, border_mode='same'))
+        model.add(Activation('relu'))
+        model.add(Convolution3D(48, 5, 5, 5, input_shape=input_shape, border_mode='same'))
+        model.add(Activation('relu'))
+
+    elif variant == 3:
+        model = Sequential()
+
+        model.add(Convolution3D(16, 3, 3, 3, input_shape=input_shape, border_mode='same'))
+        model.add(Activation('relu'))
+        model.add(Convolution3D(24, 3, 3, 3, input_shape=input_shape, border_mode='same'))
+        model.add(Activation('relu'))
+        model.add(Convolution3D(48, 3, 3, 3, input_shape=input_shape, border_mode='same'))
+        model.add(Activation('relu'))
+        model.add(MaxPooling3D(pool_size=(10, 10, 5)))
+        model.add(Convolution3D(16, 3, 3, 3, input_shape=input_shape, border_mode='same'))
+        model.add(Activation('relu'))
+        model.add(Convolution3D(24, 3, 3, 3, input_shape=input_shape, border_mode='same'))
+        model.add(Activation('relu'))
+        model.add(Convolution3D(48, 3, 3, 3, input_shape=input_shape, border_mode='same'))
+        model.add(Activation('relu'))
+        model.add(MaxPooling3D(pool_size=(5, 5, 3)))
+        model.add(Convolution3D(16, 3, 3, 3, input_shape=input_shape, border_mode='same'))
+        model.add(Activation('relu'))
+        model.add(Convolution3D(24, 3, 3, 3, input_shape=input_shape, border_mode='same'))
+        model.add(Activation('relu'))
+        model.add(Convolution3D(48, 3, 3, 3, input_shape=input_shape, border_mode='same'))
+        model.add(Activation('relu'))
+
+    elif variant == '1_old': # 5 -> 3 -> 1 layers
         model = Sequential()
 
         model.add(Convolution3D(16, 5, 5, 5, input_shape=input_shape, border_mode='same'))
@@ -59,7 +135,7 @@ except IOError:
         model.add(Activation('relu'))
         model.add(Convolution3D(16, 1, 1, 1, input_shape=input_shape, border_mode='same'))
         model.add(Activation('relu'))
-    elif variant == 2: # 1 -> 3 -> 5
+    elif variant == '2_old': # 1 -> 3 -> 5
         model = Sequential()
 
         model.add(Convolution3D(16, 1, 1, 1, input_shape=input_shape, border_mode='same'))
@@ -82,7 +158,7 @@ except IOError:
         model.add(Activation('relu'))
         model.add(Convolution3D(16, 5, 5, 5, input_shape=input_shape, border_mode='same'))
         model.add(Activation('relu'))
-    elif variant == 3: # 1 -> 3 -> 5, only one maxpooling layer
+    elif variant == '3_old': # 1 -> 3 -> 5, only one maxpooling layer
         model = Sequential()
 
         model.add(Convolution3D(16, 1, 1, 1, input_shape=input_shape, border_mode='same'))
@@ -148,4 +224,4 @@ model.summary()
 print(np.array(X_test).shape)
 loss = model.evaluate(np.array(X_test), np.array(Y_test))
 print(loss)
-
+print("All done. :-)")
