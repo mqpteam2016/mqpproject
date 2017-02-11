@@ -3,7 +3,6 @@ mpl.use('Agg')
 
 import numpy as np
 from ace_rsdata import *
-import os
 
 X, Y = get_dataset('DX')
 dummy_x = np.zeros(X[0].shape)
@@ -24,12 +23,13 @@ from sklearn.model_selection import train_test_split
 from keras.utils import np_utils
 
 # Decreasing input size to dramatically reduce training time for testing
-#X, Y = X[0:7], Y[0:7]
+X, Y = X[0:7], Y[0:7]
 
 # Dividing into 5 categories because the oldest person is 19
 Y = np_utils.to_categorical([int(y-1) for y in Y], nb_classes=4)
 
 # X's shape is  ( , 96, 96, 50, 1) or (scans, x, y, z, dummy value)
+files = X
 X = [np.expand_dims(np.moveaxis(x.get_data(), -1, 0)[0], axis=-1) for x in X]
 # X = [np.expand_dims(x.get_data(), axis=0) for x in X]
 
@@ -40,8 +40,8 @@ def show3D(self):
     if not self.patches:
         self.generate()
 
-    fig, axarr = plt.subplots(self.patches[0].shape[-1]+1, len(self.patches))
-    axarr, labels = axarr[1:], axarr[0]
+    fig, axarr = plt.subplots(self.patches[0].shape[-1]+2, len(self.patches))
+    axarr, labels, locations = axarr[2:], axarr[0], axarr[1]
     
     fig.set_size_inches(len(self.patches), self.patches[0].shape[-1]+1)
     
@@ -53,6 +53,19 @@ def show3D(self):
         labels[i].text(0.0, 0.5,
           "{:}\nin {:}".format(self.max_locations[i], self.image_indices[i]), {"size": "smaller"} )
         
+        # Show the maxlocation graphically
+        sub = locations[i]
+        max_loc = self.max_locations[i]
+        image = X[self.image_indices[i]]
+        print("image.shape", image.shape, 'max_loc', max_loc)
+        sub.imshow(image[:,:,max_loc[2], 0], cmap='gray') # Image has shape 96,96,50,1
+        sub.plot(max_loc[1],max_loc[0], 'go')
+        sub.axes.get_xaxis().set_visible(False)
+        sub.axes.get_yaxis().set_visible(False)
+	# Abusing plot_connectome to show a single location
+	# plot_connectome(np.array([[1]]), 
+	#plotting.plot_anat(files[i])
+
         # Reshaping patch
         patch = self.patches[i]
         if len(patch.shape) == 4:

@@ -211,7 +211,7 @@ X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2, random_
 if train_network:
     print("Starting training")
     for i in range(0, 1000, 50):
-        model.fit(np.array(X_train), np.array(Y_train), nb_epoch=50)
+        model.fit(np.array(X_train), np.array(Y_train), nb_epoch=50, batch_size=10)
         print('Trained epoch ' + str(i))
         if i % 100 == 0:
             try:

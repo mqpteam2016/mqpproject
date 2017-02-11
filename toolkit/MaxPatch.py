@@ -66,7 +66,7 @@ class MaxPatch:
         # list of (x, y) locations... (technically, (x,y,z,q) locations are fine too)
         max_locations = [np.unravel_index(output.argmax(), output.shape) for output in max_outputs]
         self.max_locations = []
-        self.patches = [MaxPatch.patch_from_location(self.images[image_indices[index]], max_locations[index], self.patch_size, self.outputs, image_max_locations=self.image_max_locations)
+        self.patches = [MaxPatch.patch_from_location(self.images[image_indices[index]], max_locations[index], self.patch_size, self.outputs, image_max_locations=self.max_locations)
                 for index in range(len(image_indices))]
         
         self._uncorrected_max_locations = max_locations
