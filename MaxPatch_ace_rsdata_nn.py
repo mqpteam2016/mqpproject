@@ -13,7 +13,7 @@ from toolkit.MaxPatch import *
 import keras
 
 print("Loading model")
-model_file = "h5_files/ace_rsdata_nn_variant1_02_04.h5"
+model_file = "h5_files/ace_rsdata_nn_variant1_02_18.h5_layers_6"#ace_rsdata_nn_variant1_02_04.h5"
 model = keras.models.load_model(model_file)
 
 
@@ -34,6 +34,24 @@ X = [np.expand_dims(np.moveaxis(x.get_data(), -1, 0)[0], axis=-1) for x in X]
 # X = [np.expand_dims(x.get_data(), axis=0) for x in X]
 
 X_train, X_test, Y_train, y_test = train_test_split(X, Y, test_size=0.2, random_state=0)
+
+print("Pooling preprocessing data")
+# Create preprocessing network
+# Resizing X via AveragePooling to reduce computation time
+from keras.models import Sequential
+from keras.layers.core import Dense, Activation, Flatten, Reshape
+from keras.layers.convolutional import Convolution3D, MaxPooling3D, AveragePooling3D
+from keras.utils import np_utils
+from keras import backend as K
+K.set_image_dim_ordering('tf')
+
+preprocess_model = Sequential()
+preprocess_model.add(AveragePooling3D(pool_size=(3,3,3), input_shape=input_shape)) # Should make things run about 27 times faster
+preprocess_model.compile(loss='categorical_crossentropy', optimizer='adadelta')
+
+X_train_processed = preprocess_model.predict(np.array(X_train))
+X_test_processed = preprocess_model.predict(np.array(X_test))
+
 
 def show3D(self):
     """Creates a matplotlib figure with different 'images' as columns, and their cross sections as rows."""
@@ -57,7 +75,7 @@ def show3D(self):
         sub = locations[i]
         max_loc = self.max_locations[i]
         image = X[self.image_indices[i]]
-        print("image.shape", image.shape, 'max_loc', max_loc)
+        # print("image.shape", image.shape, 'max_loc', max_loc)
         sub.imshow(image[:,:,max_loc[2], 0], cmap='gray') # Image has shape 96,96,50,1
         sub.plot(max_loc[1],max_loc[0], 'go')
         sub.axes.get_xaxis().set_visible(False)
