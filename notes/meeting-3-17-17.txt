@@ -1,0 +1,112 @@
+Meeting notes 3/17/2017
+
+
+
+DEADLINES:
+
+- Poster due April 11th
+
+- Project Presentation Day April 20th
+
+- Final mqp due ??? (first 10 days of E-term probably)
+
+
+
+COMPLETED:
+
+- All Vizs
+
+THINGS TO DO:
+
+- Write paper (completely)
+
+- Train models ** this is our priority right now **
+  
+	- Troubleshoot/debugging (possibly)
+
+- Make graphics/visual aids for the paper using project data
+
+
+
+Week 1 (3/12 - 3/18):
+
+- Get all models trained and ready to use
+
+- Debug where necessary and as much as possible
+
+
+
+Week 2 (3/19 - 3/25): 
+
+- FINISH TRAINING MODELS, SERIOUSLY
+
+- The cluster server has planned downtime on the 23rd, possibly through the 25th
+  
+** ANY JOBS RUNNING AT 9 AM ON THURSDAY WILL BE KILLED. GET EVERYTHING DONE BEFORE THEN **
+  
+	+ Everything should be done by TUESDAY to prevent possible issues with the maintenance that starts on WEDNESDAY
+  
+	+ If the training of models is not finished by the end of Tuesday we need to address this issue with Kong
+
+- Spend all remaining time working on the bulk of the paper
+  
+	+ Background, sources, etc.
+  
+	+ We will most likely need to meet to revise our structure with the data collected from the resulting models, do that before starting to write
+  
+*** DO NOT BOTHER WITH VISUALS AT THIS TIME, VISUALS ARE NOT A PRIORITY UNTIL THE PAPER HAS AT LEAST A COHESIVE ROUGH DRAFT ***
+ -- M
+    
+
+
+Week 3 (3/26 - 4/01): 
+
+- Continue writing the paper
+
+- Make graphics/visual aids to use in the paper (possibly, depends on where the paper is at)
+
+- Make a quick outline of what we want the poster to look like and prepare it
+
+
+
+Week 4 (4/02 - 4/08):
+
+- Write the paper cont'd
+
+- Spend one day working on the poster to finish it up
+
+- Have all necessary visual aids done by the end of this week
+
+- If the paper is not mostly done by this time, SIT DOWN TOGETHER AND WRITE IT OUT
+
+*** SERIOUSLY I MEAN MEET TOGETHER AND PULL AN ALL NIGHTER IF WE HAVE TO ***
+ -- M
+ 
+
+
+Week 5 (4/09 - 4/15):
+
+- Write the paper cont'd
+
+- The paper should be completely finished BY THE END OF THIS WEEK
+
+	+ includes all sources, necessary visual aids, etc.
+
+- Work on the presentation
+  
+	+ order, talking points, possible questions etc.
+
+
+
+Week 6 (4/16 - 4/20): 
+***FOUR DAYS ONLY***
+
+(Project Presentation day is on the 20th so it is really 3 days)
+
+- Figure out the ecdr stuff
+
+- Any emergency changes (working on the paper, poster, presentation)
+
+- If we're not done by this point we're fucked lol ヽ(ー_ー )ノ
+
+HAVE A PLAN TO SUBMIT THE ECDR, DON'T FORGET IT!!!!!!!!
